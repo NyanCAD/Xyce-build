@@ -112,11 +112,22 @@ jobs:
       run: ./build.sh -r
       continue-on-error: true
 
+    - name: Build AppImage
+      if: contains(matrix.os, 'ubuntu')
+      run: ./build.sh -a
+
     - name: Upload installation as artifact
       uses: actions/upload-artifact@v4
       with:
         name: xyce-${{ matrix.os }}
         path: _install
+
+    - name: Upload AppImage as artifact
+      if: contains(matrix.os, 'ubuntu')
+      uses: actions/upload-artifact@v4
+      with:
+        name: xyce-appimage-${{ matrix.os }}
+        path: _build_*/Xyce-*.AppImage
 
     - name: Upload regression results as artifact
       uses: actions/upload-artifact@v4

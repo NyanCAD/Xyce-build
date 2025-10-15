@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Xyce
+GenericName=Circuit Simulator
+Comment=Parallel Electronic Circuit Simulator
+Exec=Xyce
+Icon=xyce
+Terminal=true
+Categories=Science;Engineering;Electronics;
+Keywords=circuit;simulation;spice;electronics;
