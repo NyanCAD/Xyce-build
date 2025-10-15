@@ -107,20 +107,19 @@ jobs:
       if: ${{ ! contains(matrix.os, 'windows') }}
       run: ./build.sh -s -t -m -x -i
 
+    - name: Build AppImage
+      if: contains(matrix.os, 'ubuntu')
+      run: ./build.sh -a
 
     - name: Run Regression
       run: ./build.sh -r
       continue-on-error: true
 
-    - name: Build AppImage
-      if: contains(matrix.os, 'ubuntu')
-      run: ./build.sh -a
-
     - name: Upload installation as artifact
       uses: actions/upload-artifact@v4
       with:
         name: xyce-${{ matrix.os }}
-        path: _install
+        path: _install_*
 
     - name: Upload AppImage as artifact
       if: contains(matrix.os, 'ubuntu')
@@ -134,5 +133,3 @@ jobs:
       with:
         name: xyce-regression-${{ matrix.os }}
         path: _build_*/Xyce-Regression
-
-

@@ -45,7 +45,9 @@ rm -rf AppDir
 
 # Create the AppImage using appimage-builder
 echo "Running appimage-builder..."
-/home/builder/appimage-env/bin/appimage-builder --recipe data/AppImageBuilder.yml
+wget -O appimage-builder-x86_64.AppImage https://github.com/AppImageCrafters/appimage-builder/releases/download/v1.1.0/appimage-builder-1.1.0-x86_64.AppImage
+chmod +x appimage-builder-x86_64.AppImage
+./appimage-builder-x86_64.AppImage --appimage-extract-and-run --recipe data/AppImageBuilder.yml
 
 # Find any Xyce AppImage file
 echo "Looking for Xyce AppImage file..."
