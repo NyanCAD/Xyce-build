@@ -1,0 +1,60 @@
+version: 1
+
+script:
+  - mkdir -p $TARGET_APPDIR/usr
+  - cp -r _install_Linux/* $TARGET_APPDIR/usr/
+  - mkdir -p $TARGET_APPDIR/usr/share/icons/hicolor/256x256/apps/
+  - cp data/xyce.png $TARGET_APPDIR/usr/share/icons/hicolor/256x256/apps/xyce.png
+  - mkdir -p $TARGET_APPDIR/usr/share/applications/
+  - cp data/Xyce.desktop $TARGET_APPDIR/usr/share/applications/org.sandia.xyce.desktop
+
+AppDir:
+  path: ./AppDir
+  app_info:
+    id: org.sandia.xyce
+    name: Xyce
+    icon: xyce
+    version: 1.0.0
+    exec: usr/bin/Xyce
+    exec_args: $@
+
+  apt:
+    arch: amd64
+    sources:
+      - sourceline: 'deb http://archive.ubuntu.com/ubuntu/ jammy main universe'
+        key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x871920D1991BC93C'
+    include:
+      # Xyce dependencies
+      - libblas3
+      - liblapack3
+      - libfftw3-3
+      - libsuitesparseconfig5
+      - libsuitesparse-dev
+      - libboost-python1.74.0
+      # OpenMPI for parallel circuit simulation
+      - openmpi-bin
+      - libopenmpi3
+      # Additional runtime dependencies
+      - libgomp1
+      - libgfortran5
+      - libgcc-s1
+      - libc6
+      - libstdc++6
+    exclude:
+      # Exclude development packages to reduce size
+      - libopenmpi-dev
+      - libblas-dev
+      - liblapack-dev
+
+  runtime:
+    env:
+      # OpenMPI configuration for AppImage environment
+      OPAL_PREFIX: '$APPDIR/usr'
+      OMPI_MCA_prefix: '$APPDIR/usr'
+    path_mappings:
+      # Map OpenMPI paths to AppDir locations
+      - /usr/share/openmpi:$APPDIR/usr/share/openmpi
+      - /etc/openmpi:$APPDIR/etc/openmpi
+
+AppImage:
+  arch: x86_64

@@ -9,7 +9,7 @@ Help()
    # Display Help
    echo "Xyce build script for Ubuntu, Windows and macOS, 64 bit x86_64 or aarch64"
    echo
-   echo "Syntax: $0 [-h] [-s] [-d] [-t] [-x] [-i install-dir] [-- [<configure flags>]]"
+   echo "Syntax: $0 [-h] [-s] [-d] [-t] [-x] [-i install-dir] [-a] [-- [<configure flags>]]"
    echo "options:"
    echo "  -d:                Debug build"
    echo "  -s:                Fetch source"
@@ -18,6 +18,7 @@ Help()
    echo "  -x:                Build Xyce"
    echo "  -i:                Install XDM and Xyce in the given directory"
    echo "  -r:                Run the regression suite"
+   echo "  -a:                Build AppImage (requires Xyce to be installed)"
    echo "  -h:                Display this help"
    echo "  <configure flags>: Arbitary options to pass to ./configure :"
    echo
@@ -45,12 +46,13 @@ unset BUILD_XDM
 unset BUILD_XYCE
 unset RUN_REGRESSION
 unset INSTALL_XYCE
+unset BUILD_APPIMAGE
 
 ############################################################
 # Process the input options. Add options as needed.        #
 ############################################################
 # Get the options
-while getopts ":hdtxmsri:" option; do
+while getopts ":hdtxmsrai:" option; do
   case $option in
     h) # display Help
         Help
@@ -78,6 +80,10 @@ while getopts ":hdtxmsri:" option; do
         ;;
     r) # Run regression for Xyce
         RUN_REGRESSION=1
+        option_passed=1
+        ;;
+    a) # Build AppImage
+        BUILD_APPIMAGE=1
         option_passed=1
         ;;
     i) # Install
@@ -273,4 +279,6 @@ if [ -n "$INSTALL_XYCE" ]; then
   ./scripts/install-xdm.sh || exit 1
 fi
 
-
+if [ -n "$BUILD_APPIMAGE" ]; then
+  ./scripts/build-appimage.sh || exit 1
+fi

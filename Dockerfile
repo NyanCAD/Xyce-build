@@ -115,7 +115,36 @@ RUN ls -la _install_Linux/bin/ && \
 
 RUN ls -laR . > file.list
 
-#FROM scratch
-#COPY --from=build /home/builder/_build_Linux /_build_Linux
-#COPY --from=build /home/builder/_install_Linux /_install_Linux
-#COPY --from=build /home/builder/file.list /file.list
+#--------------------------
+# Build AppImage
+#--------------------------
+FROM xyce AS appimage
+
+COPY --chown=builder:builder scripts/build-appimage.sh  /home/builder/scripts/build-appimage.sh
+COPY --chown=builder:builder data/AppImageBuilder.yml  /home/builder/data/AppImageBuilder.yml
+COPY --chown=builder:builder data/Xyce.desktop  /home/builder/data/Xyce.desktop
+COPY --chown=builder:builder data/xyce.png  /home/builder/data/xyce.png
+
+USER builder
+WORKDIR /home/builder
+
+# Install appimage-builder and dependencies
+USER root
+RUN apt-get update && apt-get install -y python3-pip python3-venv gtk-update-icon-cache squashfs-tools && rm -rf /var/lib/apt/lists/*
+USER builder
+
+# Create virtual environment and install appimage-builder
+RUN python3 -m venv /home/builder/appimage-env
+RUN /home/builder/appimage-env/bin/pip install appimage-builder
+
+RUN --mount=type=cache,target=/ccache,uid=1001 ./build.sh -a
+
+# Verify the AppImage was created
+RUN ls -lh _build_Linux/Xyce-*.AppImage || echo "AppImage build completed"
+
+#--------------------------
+# Export stage for easy artifact extraction
+#--------------------------
+FROM scratch AS export
+COPY --from=appimage /home/builder/_build_Linux/Xyce-*.AppImage /
+COPY --from=appimage /home/builder/_install_Linux /install/
