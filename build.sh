@@ -9,14 +9,14 @@ Help()
    # Display Help
    echo "Xyce build script for Ubuntu, Windows and macOS, 64 bit x86_64 or aarch64"
    echo
-   echo "Syntax: $0 [-h] [-s] [-d] [-t] [-x] [-i install-dir] [-a] [-- [<configure flags>]]"
+   echo "Syntax: $0 [-h] [-s] [-d] [-t] [-x] [-i] [-a] [-- [<configure flags>]]"
    echo "options:"
    echo "  -d:                Debug build"
    echo "  -s:                Fetch source"
    echo "  -t:                Build Trilinos"
    echo "  -m:                Build XDM"
    echo "  -x:                Build Xyce"
-   echo "  -i:                Install XDM and Xyce in the given directory"
+   echo "  -i:                Install XDM and Xyce"
    echo "  -r:                Run the regression suite"
    echo "  -a:                Build AppImage (requires Xyce to be installed)"
    echo "  -h:                Display this help"
@@ -52,7 +52,7 @@ unset BUILD_APPIMAGE
 # Process the input options. Add options as needed.        #
 ############################################################
 # Get the options
-while getopts ":hdtxmsrai:" option; do
+while getopts ":hdtxmsrai" option; do
   case $option in
     h) # display Help
         Help
@@ -88,7 +88,6 @@ while getopts ":hdtxmsrai:" option; do
         ;;
     i) # Install
         INSTALL_XYCE=1
-        INSTALL_DIR=${OPTARG}
         option_passed=1
         ;;
     \?) # Invalid option

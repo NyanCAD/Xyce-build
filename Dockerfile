@@ -93,7 +93,7 @@ RUN --mount=type=cache,target=/ccache,uid=1001 ./build.sh -x
 #--------------------------
 # Install Xyce and XDM
 #--------------------------
-RUN --mount=type=cache,target=/ccache,uid=1001 ./build.sh -i _install
+RUN --mount=type=cache,target=/ccache,uid=1001 ./build.sh -i
 
 #--------------------------
 # Run regression tests
@@ -130,12 +130,8 @@ WORKDIR /home/builder
 
 # Install appimage-builder and dependencies
 USER root
-RUN apt-get update && apt-get install -y python3-pip python3-venv gtk-update-icon-cache squashfs-tools && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget gtk-update-icon-cache squashfs-tools && rm -rf /var/lib/apt/lists/*
 USER builder
-
-# Create virtual environment and install appimage-builder
-RUN python3 -m venv /home/builder/appimage-env
-RUN /home/builder/appimage-env/bin/pip install appimage-builder
 
 RUN --mount=type=cache,target=/ccache,uid=1001 ./build.sh -a
 
