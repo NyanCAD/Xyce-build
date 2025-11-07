@@ -3,6 +3,8 @@ name: Build Xyce on multiple platforms
 on:
   push:
     branches: [ "main" ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ "main" ]
   workflow_run:
@@ -27,7 +29,7 @@ jobs:
 
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest] # windows-11-arm doesnt have working msys2 yet
+        os: [ubuntu-latest] # windows-latest, macos-latest] # windows-11-arm doesnt have working msys2 yet
 
     defaults:
       run:
@@ -133,3 +135,54 @@ jobs:
       with:
         name: xyce-regression-${{ matrix.os }}
         path: _build_*/Xyce-Regression
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download AppImage artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: xyce-appimage-ubuntu-latest-large
+        path: ./appimage/
+
+    - name: Download installation artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: xyce-ubuntu-latest-large
+        path: ./installation/
+
+    - name: Get tag name
+      id: tag
+      run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Find AppImage
+      id: appimage
+      run: |
+        APPIMAGE_PATH=$(find appimage -name "Xyce-*.AppImage" | head -1)
+        echo "path=$APPIMAGE_PATH" >> $GITHUB_OUTPUT
+
+    - name: Package installation
+      run: tar -czf xyce-installation.tar.gz -C installation .
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: Xyce ${{ steps.tag.outputs.tag }}
+        body: |
+          Xyce circuit simulator release ${{ steps.tag.outputs.tag }}
+
+          ## Download
+          - **AppImage (Linux)**: Portable Linux binary
+          - **Installation Archive**: Extract and install manually
+
+          ## Usage
+          ```bash
+          chmod +x Xyce-*.AppImage
+          ./Xyce-*.AppImage --version
+          mpirun -np 4 ./Xyce-*.AppImage circuit.cir
+          ```
+        files: |
+          ${{ steps.appimage.outputs.path }}
+          xyce-installation.tar.gz
