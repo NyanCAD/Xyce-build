@@ -144,13 +144,13 @@ jobs:
     - name: Download AppImage artifact
       uses: actions/download-artifact@v4
       with:
-        name: xyce-appimage-ubuntu-latest-large
+        name: xyce-appimage-ubuntu-latest
         path: ./appimage/
 
     - name: Download installation artifact
       uses: actions/download-artifact@v4
       with:
-        name: xyce-ubuntu-latest-large
+        name: xyce-ubuntu-latest
         path: ./installation/
 
     - name: Get tag name
